@@ -106,12 +106,25 @@ I hewed pretty close to the LeNet architecture suggested by the project intro.
 
 I explored the hyper-parameters:
 
-- epochs
-- batch size
-- learning rate (passed to AdamOptimizer)
+- epochs: 10
+    - I explored various numbers of epochs, from as little as 3, for fast experimentation, to as many as 50.  Ultimately, I found that the set of parameters chosen trained best on a few epochs, around 10, and often topped out before that.
+    - As the reviewer suggests, early stopping is a good idea here, and something I look forward to implementing in Project 3.
+- batch size: 64
+    - I had luck with batch sizes of 64 and 128.  Smaller and my model often failed to train successfully, sometimes even at 64.  I did not really experiment with going larger.
+- learning rates: 0.002
+    - I had luck with rates even as high as 0.05, which I think is partly due to the adaptive nature of the optimizer.  However, with low learning rates like 0.0001, the model seemed to stop improving well before 0.90 validation accuracy, so I abandoned that approach.
 - keep probability for dropout layers
+    - I used an adaptive approach here.  My model uses 0.3 as a keep_prob until it reaches 0.9 accuracy, when it switches to 0.4.  It then goes on to increase slightly, until it reaches 0.94, where I hold it at 0.6.
+    - I tried a variety of keep_probs.  It's a reach to make a generalization here, but I did notice that low numbers like 0.3 tended to improve quickly at first, then slow down and struggle to move past 0.9 ish.  On the other hand, it seemed that low or zero dropout had the opposite problem, so I tried the adaptive approach above.
 - adding balanced classes or leaving X_train unaltered
-- sigma value for weight initialization
+    - Ultimately, I went with balanced classes using the techniques described above.  However, I did not see a significant difference from this in my model's performance on the *validation* set.  I had models that performed similarly to my final model that used unbalanced training data.
+    - It could be that it did improve the model's generality and that by going with balanced training data, my model generalized better to the *test* set.  However, I didn't check that, as I didn't want to implicitly overfit the test data.
+- sigma value for weight initialization: 0.1
+    - I had a lot of trouble with setting the input weights.  When I left it higher, at 0.2 or 0.5 or even 1, the network started off with large dead zones with zero gradient.  When I tried it much smaller than 0.1, for example 0.01, the network seemed to learn very slowly and often did not seem to gain any traction.
+    - With ∞ time, I would like to try smaller `sigma` and a higher learning rate and see what happened.
+- I stuck with the AdamOptimizer that was used in the LeNet solution for handwriting recognition.
+- Last, I experimented with using dropout or not in the final two layers.  I noticed significant improvements in training speed by adding dropout on the last layer, and again by adding it to the second-to-last layer.  So I settled on dropout on the last two layers as a topological hyperparameter.
+
 
 #### 4. Describe the approach taken for finding a solution and getting the validation set accuracy to be at least 0.93. Include in the discussion the results on the training, validation and test sets and where in the code these were calculated. Your approach may have been an iterative process, in which case, outline the steps you took to get to the final solution and why you chose those steps. Perhaps your solution involved an already well known implementation or architecture. In this case, discuss why you think the architecture is suitable for the current problem.
 
@@ -119,12 +132,7 @@ My final model results were:
 * validation set accuracy of 0.940
 * test set accuracy of 0.9303
 
-If an iterative approach was chosen:
-* What was the first architecture that was tried and why was it chosen?
-* What were some problems with the initial architecture?
-* How was the architecture adjusted and why was it adjusted? Typical adjustments could include choosing a different model architecture, adding or taking away layers (pooling, dropout, convolution, etc), using an activation function or changing the activation function. One common justification for adjusting an architecture would be due to overfitting or underfitting. A high accuracy on the training set but low accuracy on the validation set indicates over fitting; a low accuracy on both sets indicates under fitting.
-* Which parameters were tuned? How were they adjusted and why?
-* What are some of the important design choices and why were they chosen? For example, why might a convolution layer work well with this problem? How might a dropout layer help with creating a successful model?
+My final 
 
 If a well known architecture was chosen:
 * What architecture was chosen?
